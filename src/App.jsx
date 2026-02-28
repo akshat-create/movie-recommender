@@ -96,12 +96,27 @@ Respond ONLY with a valid JSON array (no markdown, no extra text) with exactly $
       if (!res.ok) { setError("API Error: " + (data.error?.message || res.status)); return; }
       const text = data.choices[0].message.content;
       const clean = text.replace(/```json|```/g, "").trim();
-      setResults(JSON.parse(clean));
+      const resultsWithPosters = await Promise.all(
+        JSON.parse(clean).map(async m => ({
+          ...m,
+          poster: await fetchPoster(m.title, m.year)
+        }))
+      );
+      setResults(resultsWithPosters);
     } catch (e) {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPoster = async (title, year) => {
+    try {
+      const apiKey = typeof import.meta !== 'undefined' ? import.meta.env.VITE_OMDB_API_KEY : "";
+      const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${apiKey}`);
+      const data = await res.json();
+      return data.Poster && data.Poster !== "N/A" ? data.Poster : null;
+    } catch { return null; }
   };
 
   const Chip = ({ g, active, onClick, color }) => (
@@ -250,6 +265,12 @@ Respond ONLY with a valid JSON array (no markdown, no extra text) with exactly $
                     border: `1px solid ${t.border}`, borderTop: `3px solid ${t.accentColor}`,
                     transition: "transform 0.2s", cursor: "default"
                   }}>
+                  {m.poster && (
+                    <img src={m.poster} alt={m.title} style={{
+                      width: "100%", height: 200, objectFit: "cover",
+                      borderRadius: 10, marginBottom: 14
+                    }} />
+                  )}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <span style={{ background: t.accentColor + "22", color: t.accentColor, borderRadius: 6, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>{m.genre}</span>
                     <span style={{ color: "#ffd700", fontSize: 13, fontWeight: 700 }}>⭐ {m.rating}</span>
