@@ -2,7 +2,7 @@
 An AI-powered movie recommendation web app that suggests personalized films based on your taste profile. Built with React and powered by LLaMA 3.3 via the Groq API, CineMatch replicates the core concept of a content-based filtering recommender system in an interactive, shareable format.
 
 🚀 Live Demo
-Click here to view the live app <!-- Replace with your Vercel URL -->
+[Click here to view the live app](https://movie-recommender-two-peach.vercel.app/)
 
 ✨ Features
 Preference-based recommendations — Input movies you've enjoyed, select favorite genres, set a mood, and filter by era.
